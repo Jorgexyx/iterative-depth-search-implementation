@@ -20,8 +20,6 @@ int *flip(int *,int, int);
 int main()
 {
 	int vals[4] = {4,3,6,2};
-	//int vals[4] = {1,2,3,4};
-	//std::cout <<  inOrder(vals) << std::endl;
 	BFS(vals, 3);
 	return 0;
 }
