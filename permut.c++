@@ -3,20 +3,16 @@
 #include <queue>
 class Node 
 {
-	public: Node(int *perm, int par): permutation(perm), parent(par) {}
+	public: 
+		Node(int *perm, int par): permutation(perm), parent(par) {} 
 		int getParent()       { return parent;}
 		int *getPermutation() { return permutation; }
-		void printPerm() { 
-			for(int i =0 ; i <4; i++){
-				std::cout << permutation[i] << ", "; }
-			std::cout << "" <<std::endl;
-			}
 	private:
 		int parent;
 		int *permutation;
 }; 
 
-void BFS(int[4], int);
+void BFS(int *, int);
 void printArray(int *arr);
 bool inOrder(int *);
 int *flip(int *,int, int);
@@ -24,12 +20,14 @@ int *flip(int *,int, int);
 int main()
 {
 	int vals[4] = {4,3,6,2};
+	//int vals[4] = {1,2,3,4};
+	//std::cout <<  inOrder(vals) << std::endl;
 	BFS(vals, 3);
 	return 0;
 }
 
 
-void BFS(int permutation[4], int n)
+void BFS(int *permutation, int n)
 {
 	std::vector<Node *> pointers;
 	std::queue<Node *> myQueue;
@@ -43,37 +41,30 @@ void BFS(int permutation[4], int n)
 		node = myQueue.front();
 	 	currentPerm = node->getPermutation();
 		myQueue.pop();
-		if(inOrder(currentPerm))
-		{
-			std::cout << "FOUND\n";
-			return;
-		}
+		//std::cout << "Current permutation: \n";
+		//printArray(currentPerm);
+		//std::cout << "\n";
+			
+		if(inOrder(currentPerm)) {
+			std::cout << "Goal node found \n";
+			printArray(currentPerm);
+			return;	}
 
-		//create permutation as nodes 
-		/**
-		for(int i = 0; i < 4; i++)
-		{
-			int *newPerm = flip(currentPerm, i);
-			if(newPerm != currentPerm){
-			Node *leaf = new Node(newPerm, 4);
-			pointers.push_back(leaf);
-			myQueue.push(leaf);
-			leaf->printPerm();}
-
-		} **/
-	}
-	std::cout << "out\n";
-	for(int i = 1 ; i < 4; i++)
-	{
-		for(int j = 0 ; j < 4 ; j ++)
-		{	
-			if( (j + i ) > 3)
-				break;
-			int *arr = flip(permutation,i + j, j);
-			printArray(arr);
+		//generate child nodes
+		for(int i = 1 ; i < 4; i++) {
+			for(int j = 0 ; j < 4 ; j ++) {	
+				if( (j + i ) > 3) break;
+				int *newPerm = flip(currentPerm,i + j, j);
+				if(newPerm != currentPerm) { //have to add checking
+					Node *leaf = new Node(newPerm, 4);
+					pointers.push_back(leaf);
+					myQueue.push(leaf);
+					//printArray(newPerm); 
+				}
+			}
 		}
+		//std::cout << "Checking again..." << std::endl;
 	}
-	int *newPerm = flip(currentPerm,0,2);
 }
 
 int *flip(int *permutation, int endIdx,int startingIdx)
@@ -95,10 +86,10 @@ int *flip(int *permutation, int endIdx,int startingIdx)
 	return tempArr;
 }
 
-bool inOrder(int *perm)
+bool inOrder(int *arr)
 {
-	for(int i = 0; i < 4; i++)
-		if(perm[i] > perm[i + 1])
+	for(int i = 0; i < 3; i++)
+		if(arr[i] > arr[i + 1])
 			return false;
 	return true;
 }
