@@ -105,5 +105,5 @@ void printArray(int *arr)
 {
   for(int i = 0; i < 4; i ++)
     std::cout << arr[i] << ",";
-    std::cout << "\n";
+  std::cout << "\n";
 }
