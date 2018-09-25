@@ -1,10 +1,11 @@
+#include <time.h>
 #include <iostream>
 #include <vector>
 #include <queue>
 #include <string>
 #include <sstream>
 #include <stack>
-
+#include <algorithm>
 class Node 
 {
 	public: 
@@ -21,38 +22,44 @@ void bfs(int *, int);
 void ids(int *, int);
 void printPath(std::vector<Node *> );
 void printArray(int *arr);
-bool dfs(int *, int);
+bool dfs(int *, int,std::vector<Node *>&);
 bool generateChilds(Node *,std::vector<Node *> &, std::queue<Node *> &, std::stack<Node *> &,int);
 bool inOrder(int *);
 int *flip(int *,int, int);
 
 int main()
 {
-  int vals[size] = {3,10,7,2};
+  int vals[size] = {2,5,3,1};
+  std::cout << "\nRunning bfs... \n";
   bfs(vals, 3);
+  std::cout << "\nRunning ids... \n";
   ids(vals,10);
   return 0;
 }
 
 void ids(int *permutation, int maxDepth)
 {
-  for(int i = 0 ; i < maxDepth; i ++)
-    if(dfs(permutation,i))
+  for(int i = 0 ; i < maxDepth; i ++){
+    std::vector<Node *> pointers;
+    //Node *node = new Node(permutation,-1);
+    //pointers.push_back(node);
+    if(dfs(permutation, i, pointers))
       return;
+  }
   std::cout << "Could not find.. max depth should increase\n";
   
 }
 
-bool dfs(int *permutation,int n)
+bool dfs(int *permutation,int n,std::vector<Node *> &pointers)
 {
   if(n == 0)
     return false;
   
   int *currentPerm;
-  std::vector<Node *> pointers;
   std::stack<Node *> myStack;
   std::queue<Node *> myQueue;
 
+  double cpu0 = clock();
   Node *node = new Node(permutation,-1);
   pointers.push_back(node);
   myStack.push(node);
@@ -67,8 +74,15 @@ bool dfs(int *permutation,int n)
     node = myStack.top();
     myStack.pop();
     currentPerm = node->getPermutation();
-    if (dfs(currentPerm, n - 1))
+    if (dfs(currentPerm, n - 1,pointers))
+    {
+      double cpu1 = clock();
+      printPath(pointers);
+      std::cout << "Total cpu time for ids: " << (cpu1 - cpu0) /CLOCKS_PER_SEC << "seconds \n";
+      std::cout << "Total numer of visited states: " << pointers.size() << std::endl;
+      //std::cout << "Max size of Queue: " << maxSize << std::endl;
       return true;
+    }
   }
   return false;
 }
@@ -88,6 +102,7 @@ int getInput()
 
 void bfs(int *permutation, int n)
 {
+  int maxSize = 1;
   std::vector<Node *> pointers;
   std::queue<Node *> myQueue;
   std::stack<Node *> myStack;
@@ -96,15 +111,23 @@ void bfs(int *permutation, int n)
   Node *node = new Node(permutation, -1);
   Node *currentNode;
 
+  double cpu0 = clock();
   pointers.push_back(node);
   myQueue.push(node);
 
   while (!myQueue.empty()) {
+    if(myQueue.size() > maxSize)
+       maxSize = myQueue.size();
+
     node = myQueue.front();
     myQueue.pop();
     if(generateChilds(node, pointers, myQueue, myStack , 1))
     {
+      double cpu1 = clock();
       printPath(pointers);
+      std::cout << "Total cpu time for bfs: " << (cpu1 - cpu0) /CLOCKS_PER_SEC << "seconds \n";
+      std::cout << "Total numer of visited states: " << pointers.size() << std::endl;
+      std::cout << "Max size of Queue: " << maxSize << std::endl;
       return;
     }
   }
@@ -112,7 +135,7 @@ void bfs(int *permutation, int n)
 
 bool generateChilds(Node *node, std::vector<Node *> &pointers, std::queue<Node *> &myQueue, std::stack<Node *> &myStack,int ch)
 {
-  int parentIdx = pointers.size() - 1;
+  int parentIdx = find(pointers.begin(), pointers.end(), node) - pointers.begin();
   int *perm = node->getPermutation();
   for(int i = 1 ; i < size; i++) {
     for(int j = 0 ; j < size ; j ++) {	
@@ -120,19 +143,19 @@ bool generateChilds(Node *node, std::vector<Node *> &pointers, std::queue<Node *
 	break;
 
       int *newPerm = flip(perm, i + j, j);
-      if(inOrder(newPerm))
-      {
-	int x = node ->getParent();
-	std::cout << x << std::endl;
-        printArray(newPerm);
-        return true;
-      }
-
       int intVal = 0;
       int oldVal = 1;
+
       if(intVal != oldVal) {
 	Node *leaf = new Node(newPerm, parentIdx);
 	pointers.push_back(leaf);
+
+	if(inOrder(newPerm))
+	{
+	  //std::cout << parentIdx << std::endl;
+	  //printArray(newPerm);
+          return true;
+	}
 
         if(ch == 1)
 	  myQueue.push(leaf);
@@ -167,7 +190,7 @@ bool inOrder(int *arr)
   for(int i = 0; i < size - 1; i++)
     if(arr[i] > arr[i + 1])
       return false;
-   return true;
+  return true;
 }
 
 
@@ -175,10 +198,24 @@ void printArray(int *arr)
 {
   for(int i = 0; i < size; i ++)
     std::cout << arr[i] << ",";
-  std::cout << "\n";
 }
 
 void printPath(std::vector<Node *> pointers)
 {
-  
+  std::vector<int *> vals;
+  Node *node = pointers.at(pointers.size() - 1);
+  while(node->getParent() != -1)
+  {
+    //printArray(node->getPermutation());
+    vals.push_back(node->getPermutation());
+    node = pointers.at(node->getParent());
+  }
+  //printArray(node->getPermutation());
+  vals.push_back(node->getPermutation());
+  for(int i = vals.size() - 1; i > -1 ; i--)
+  {
+    printArray(vals.at(i));
+    std::cout << "-> ";
+  }
+  std::cout<< "\n";
 }
