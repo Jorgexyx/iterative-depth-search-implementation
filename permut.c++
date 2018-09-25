@@ -16,7 +16,7 @@ class Node
 	  int *permutation;
 }; 
 
-int size = 4;
+int size = 6;
 void bfs(int *, int);
 void ids(int *, int);
 bool dfs(int *, int);
@@ -28,21 +28,21 @@ int arrayToInt(int *);
 int getInput();
 int main()
 {
-  int vals[4] = {10,2,6,1};
-  //bfs(vals, 3);
-  ids(vals,3);
+  int vals[6] = {3,10,7,2,6,1};
+  bfs(vals, 3);
+  ids(vals,1);
   return 0;
 }
 
-void ids(int *permutation, int n)
+void ids(int *permutation, int maxDepth)
 {
-  for(int i = 0 ; i < 5; i ++)
+  for(int i = 0 ; i < maxDepth; i ++)
   {
     if(dfs(permutation,i))
-      break;
-    
+      return;
   } 
-  std::cout << "Out\n";
+  std::cout << "Could not find.. max depth should increase\n";
+  
 }
 
 bool dfs(int *permutation,int n)
@@ -61,11 +61,9 @@ bool dfs(int *permutation,int n)
   node = myStack.top();
   myStack.pop();
   currentPerm = node->getPermutation();
-  //printArray(currentPerm);
   if(generateChilds(currentPerm, pointers, myQueue, myStack,0))
     return true;
   
-  std::cout << myStack.size() << std::endl;
   for(int i = 0; i < myStack.size(); i++)
   {
     node = myStack.top();
@@ -139,7 +137,6 @@ bool generateChilds(int *perm,std::vector<Node *> &pointers, std::queue<Node *> 
         else
 	  myStack.push(leaf);
 
-	//printArray(newPerm); 
       }
     }
   }
@@ -170,6 +167,7 @@ bool inOrder(int *arr)
       return false;
    return true;
 }
+
 int arrayToInt(int *arr)
 {
   return 1;
