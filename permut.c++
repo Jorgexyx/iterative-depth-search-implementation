@@ -17,19 +17,20 @@ class Node
 	  int *permutation;
 }; 
 
-const int size = 4;
+const int size = 5;
+const int maxStack = 1;
 void bfs(int *, int);
 void ids(int *, int);
 void printPath(std::vector<Node *> );
 void printArray(int *arr);
-bool dfs(int *, int,std::vector<Node *>&);
+bool dfs(Node *, int,std::vector<Node *>&);
 bool generateChilds(Node *,std::vector<Node *> &, std::queue<Node *> &, std::stack<Node *> &,int);
 bool inOrder(int *);
 int *flip(int *,int, int);
 
 int main()
 {
-  int vals[size] = {2,5,3,1};
+  int vals[size] = {5,2,4,3,1};
   std::cout << "\nRunning bfs... \n";
   bfs(vals, 3);
   std::cout << "\nRunning ids... \n";
@@ -39,18 +40,26 @@ int main()
 
 void ids(int *permutation, int maxDepth)
 {
+  double cpu0 = clock();
   for(int i = 0 ; i < maxDepth; i ++){
     std::vector<Node *> pointers;
-    //Node *node = new Node(permutation,-1);
-    //pointers.push_back(node);
-    if(dfs(permutation, i, pointers))
+    Node *node = new Node(permutation, -1);
+    pointers.push_back(node);
+    if(dfs(node, i, pointers))
+    {
+      double cpu1 = clock();
+      printPath(pointers);
+      std::cout << "Total cpu time for ids: " << (cpu1 - cpu0) /CLOCKS_PER_SEC << "seconds \n";
+      std::cout << "Total numer of visited states: " << pointers.size() << std::endl;
+      //std::cout << "Max size of Queue: " << maxSize << std::endl;
       return;
+    }
   }
   std::cout << "Could not find.. max depth should increase\n";
   
 }
 
-bool dfs(int *permutation,int n,std::vector<Node *> &pointers)
+bool dfs(Node *node,int n,std::vector<Node *> &pointers)
 {
   if(n == 0)
     return false;
@@ -59,8 +68,7 @@ bool dfs(int *permutation,int n,std::vector<Node *> &pointers)
   std::stack<Node *> myStack;
   std::queue<Node *> myQueue;
 
-  double cpu0 = clock();
-  Node *node = new Node(permutation,-1);
+  //Node *node = new Node(permutation, -1);
   pointers.push_back(node);
   myStack.push(node);
   
@@ -68,21 +76,13 @@ bool dfs(int *permutation,int n,std::vector<Node *> &pointers)
   myStack.pop();
   if(generateChilds(node, pointers, myQueue, myStack,0))
     return true;
-  
+  if(
   for(int i = 0; i < myStack.size(); i++)
   {
     node = myStack.top();
     myStack.pop();
-    currentPerm = node->getPermutation();
-    if (dfs(currentPerm, n - 1,pointers))
-    {
-      double cpu1 = clock();
-      printPath(pointers);
-      std::cout << "Total cpu time for ids: " << (cpu1 - cpu0) /CLOCKS_PER_SEC << "seconds \n";
-      std::cout << "Total numer of visited states: " << pointers.size() << std::endl;
-      //std::cout << "Max size of Queue: " << maxSize << std::endl;
+    if (dfs(node, n - 1,pointers))
       return true;
-    }
   }
   return false;
 }
@@ -97,6 +97,7 @@ int getInput()
   int *arr;
   int cnt = 0;
   return 1;
+
 }
 
 
