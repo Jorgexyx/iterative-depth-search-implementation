@@ -17,8 +17,8 @@ class Node
 	  int *permutation;
 }; 
 
-const int size = 5;
-const int maxStack = 1;
+const int size = 10;
+int maxStack = 1;
 void bfs(int *, int);
 void ids(int *, int);
 void printPath(std::vector<Node *> );
@@ -30,7 +30,7 @@ int *flip(int *,int, int);
 
 int main()
 {
-  int vals[size] = {5,2,4,3,1};
+  int vals[size] = {12,12,5,7,2,4,8,10,1,5};
   std::cout << "\nRunning bfs... \n";
   bfs(vals, 3);
   std::cout << "\nRunning ids... \n";
@@ -51,7 +51,7 @@ void ids(int *permutation, int maxDepth)
       printPath(pointers);
       std::cout << "Total cpu time for ids: " << (cpu1 - cpu0) /CLOCKS_PER_SEC << "seconds \n";
       std::cout << "Total numer of visited states: " << pointers.size() << std::endl;
-      //std::cout << "Max size of Queue: " << maxSize << std::endl;
+      std::cout << "Max size of Queue: " << maxStack << std::endl;
       return;
     }
   }
@@ -76,7 +76,8 @@ bool dfs(Node *node,int n,std::vector<Node *> &pointers)
   myStack.pop();
   if(generateChilds(node, pointers, myQueue, myStack,0))
     return true;
-  if(
+  if(maxStack < myStack.size())
+	  maxStack = myStack.size();
   for(int i = 0; i < myStack.size(); i++)
   {
     node = myStack.top();
